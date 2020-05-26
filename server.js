@@ -78,16 +78,12 @@ const validateAndSendIpPort = (db, ppkNum, ppkPass, ppkNewIp, ppkNewPort) => {
             db.close();
             await sleep(10000);
         } else {
-            sendNewIpPort(db, ppkNum, ppkPass, ppkNewIp, ppkNewPort, async () => {                    
-                
-              //  createRequest4L(db, ppkNum, async () => {
+            sendNewIpPort(db, ppkNum, ppkPass, ppkNewIp, ppkNewPort, async () => {                      
                     console.log(`\nCommand to change main ip and port was successfully sent to ppk number ${ppkNum}`);
                     console.log('Application will be closed automatically in 20 seconds');
 
                     db.close();    
-                    await sleep(20000);
-               // });               
-                
+                    await sleep(20000);                     
             });
         }       
     });
@@ -126,49 +122,3 @@ const sendNewIpPort = (db, ppk_num, ppk_pass, ppk_newIp, ppk_newPort, callback) 
         callback();
     });
 };
-
-const createRequest4L = (db, ppk_num, callback) => {
-    db.collection('Ping', async (err, collection) => {
-        if(err) {
-            console.log(err);
-            db.close();
-            await sleep(10000);
-        };
-
-        const ppkArray = await collection.find({ppk_num: ppk_num}).toArray();
-        //const ppk = await collection.findOne({ppk_num: ppk_num});
-        if(ppkArray.length > 0){
-            //return ppk;
-            db.collection('Journal', async (err, collection) => {
-                if(err) {
-                    console.log(err);
-                    db.close();
-                    await sleep(10000);
-                };
-
-                await collection.insertOne({
-                    address: ppkArray[0].ip,
-                    port: ppkArray[0].port,
-                    model: '4L',
-                    enabled: true,
-                    ppk_num: ppk_num,
-                    id_msg: "34",
-                    date_time: new Date()
-                }, async (err, result) => {
-                    if(err){
-                        console.log(err);
-                        db.close();
-                        await sleep(10000);
-                    };         
-                    console.log(`${result}\n`);
-                })
-            })
-            callback();
-        } else {
-            console.log('No ppk data in Ping collection...')
-            console.log('Application will be closed automatically in 10 seconds');
-            db.close();
-            await sleep(10000);
-        }
-    })
-}
