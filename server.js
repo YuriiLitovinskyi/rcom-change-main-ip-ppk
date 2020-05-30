@@ -1,5 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
 const prompts = require('prompts');
+const chalk = require('chalk');
 
 const url = 'mongodb://localhost:27017/DBClientsPPK';
 
@@ -8,12 +9,12 @@ const ipRegex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|
 (() => {
     MongoClient.connect(url, async (err, db) => {
         if(err) {            
-            console.log('No connection to Database! Please start MongoDB service on default port 27017!\n');                       
+            console.log(chalk.red('No connection to Database! Please start MongoDB service on default port 27017!\n'));                       
             
             console.log(err);
             await sleep(10000);           
         } else {
-            console.log('Connected to database successfully!\n'); 
+            console.log(chalk.green('Connected to database successfully!\n')); 
 
             (async () => {            
                 const ppkNumber = await prompts({
@@ -70,17 +71,19 @@ const validateAndSendIpPort = (db, ppkNum, ppkPass, ppkNewIp, ppkNewPort) => {
         const ppk = await collection.find({ ppk_num: ppkNum }).toArray();
         
         if (ppk.length === 0){
-            console.log(`\nPpk number ${ppkNum} wasn't found in database... \nApplication will be closed automatically in 10 seconds`);
+            console.log(`\nPpk number ${ppkNum} wasn't found in database...`);
+            console.log(chalk.magenta('Application will be closed automatically in 10 seconds'));
             db.close();
             await sleep(10000);
         } else if (ppk[0].lastActivity && ppk[0].lastActivity < (Date.now() - 4 * 60 * 1000)){
-            console.log(`\nPpk number ${ppkNum} is offline at the moment... \nApplication will be closed automatically in 10 seconds`);
+            console.log(`\nPpk number ${ppkNum} is offline at the moment...`);
+            console.log(chalk.magenta('Application will be closed automatically in 10 seconds'));
             db.close();
             await sleep(10000);
         } else {
             sendNewIpPort(db, ppkNum, ppkPass, ppkNewIp, ppkNewPort, async () => {                      
                     console.log(`\nCommand to change main ip and port was successfully sent to ppk number ${ppkNum}`);
-                    console.log('Application will be closed automatically in 20 seconds');
+                    console.log(chalk.magenta('Application will be closed automatically in 20 seconds'));
 
                     db.close();    
                     await sleep(20000);                     

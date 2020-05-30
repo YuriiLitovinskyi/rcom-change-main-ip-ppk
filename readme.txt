@@ -5,6 +5,7 @@ npm init
 }
 
   npm i prompts
+  npm i chalk
   npm install -g pkg
 Create .exe file for win x64:
   pkg server.js
